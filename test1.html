@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="UBE.css" media="all">
+</head>
+<body onresize="resize()">
+    
+    
+    <img id="minaImage" src="img/mina_sprite.png" style="position: absolute;width: 64;height: 96;top: 60px;left: 60px">
+    <audio autoplay id = "sound1" oncanplay = "">
+        <source id = "soundSource1" src="" type="audio/mpeg"volume="0.1">
+    </audio>
+    <audio  id = "sound3" oncanplay = "">
+        <source id = "soundSource2" src="" type="audio/mpeg" volume="0.1">
+    </audio>
+    <audio  id = "sound4" oncanplay = "">
+        <source id = "soundSource3" src="" type="audio/mpeg" volume="0.1">
+    </audio>
+    <audio  id = "sound5" oncanplay = "">
+        <source id = "soundSource4" src="" type="audio/mpeg" volume="0.1">
+    </audio>
+    <audio autoplay id = "sound2" oncanplay="">
+        <source id = "soundSource5" src="" type="audio/mpeg" volume="0.1">
+    </audio>
+    
+    <p id="demo" style="color:white">Soup</p>
+    <canvas id="myCanvas" width="1024" height="640" style="
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    border-right-width: 0px;
+"></canvas>
+    <!--<script src="main.js"></script>-->
+    <script src="screenElement.js"></script>
+    <script src="variables.js"></script>
+    <script src="scripts.js"></script>
+    <script>
+    window.onload = function () { loaded();loaded();text1_1.text="Loaded";};
+    ///////////////////////////////////////////////////////////éééééé
+    //<audio style="display:none" id="f2" allow="autoplay"  src="music/Emotions.mp3" autoplay>
+    var tutorial=0;
+    
+    
+    var EFsound = 0;   
+    var loading = 0;
+    var textLeft = 5;
+    var theMainText = ScriptText(9);
+    var transit = false;
+    
+    //map dragging
+    var canDrag = false;
+    var mouseDown = false;
+    var downMX = 0;
+    var downMY = 0;
+    var downBX = 0;
+    var downBY = 0;
+    
+    //cmd menu
+    var cmdOpen=false;
+    var cmdLock=true;
+        
+    //combat movement animation
+    var ismoving = false;
+        
+    //skill screen
+    var skillopen = false;
+    var skillchara = 0;//currently skilling character
+    ////////////////////////////////////////////
+    var wall = ScrEle(-1024,0,1024,640,"img/street.jpg","s1");
+    
+    var currentScreen = screen1;
+    var imoige = elem1_1.image;
+    //imoige.src = "img/Map1.png";
+    var charactersList=[getChara(0),getChara(1),getChara(2)];
+    /////////////////////////////////////////////
+    document.getElementById("demo").innerHTML = "sp" + elem1_1.locX+elem1_1.checkClicked(1,1);
+    
+    
+    
+    var soup = document.getElementById("myCanvas");
+    var rect = soup.getBoundingClientRect();
+    var ctx = soup.getContext("2d");
+    soup.addEventListener("mousedown",function(event){
+        
+        mouseDown=true;
+        downMX=event.clientX-rect.left;
+        downMY=event.clientY-rect.top;
+        downBX=elem7_6.locX;
+        downBY=elem7_6.locY;
+        if(loading>1 && !transit){
+            checkWhatClicked(event);
+        }
+        
+        
+        
+        
+    });
+        
+    
+    soup.addEventListener("touchstart",function(event){
+        
+        mouseDown=true;
+        downMX=event.clientX-rect.left;
+        downMY=event.clientY-rect.top;
+        downBX=elem7_6.locX;
+        downBY=elem7_6.locY;
+        if(loading>1 && !transit){
+            checkWhatClicked(event);
+        }
+        
+        
+    });
+    soup.addEventListener("mousemove",function(event){ 
+        if(currentScreen==screen6){
+            if(infbox.checkContained(event.clientX-rect.left, event.clientY-rect.top)){
+                infbox.openThis(event.clientX-rect.left,event.clientY-rect.top);
+            }else{
+                infbox.closeThis();
+            }
+            
+                      
+            
+        }
+                
+        
+        if(mouseDown && currentScreen==screen7){
+            
+            elem7_6.locX=downBX-(downMX-(event.clientX-rect.left));       
+            elem7_6.locY=downBY-(downMY-(event.clientY-rect.top));
+            if(elem7_6.locX<972-elem7_6.width){
+                elem7_6.locX=972-elem7_6.width;
+            }else if(elem7_6.locX>0){
+                elem7_6.locX=0;
+            }
+            if(elem7_6.locY<640-elem7_6.length){
+                elem7_6.locY=640-elem7_6.length;
+            }else if(elem7_6.locY>0){
+                elem7_6.locY=0;
+            }
+            
+        }
+        
+    });
+    soup.addEventListener("touchmove",function(event){ 
+        if(mouseDown && currentScreen==screen7){
+            
+            elem7_6.locX=downBX-(downMX-(event.clientX-rect.left));       
+            elem7_6.locY=downBY-(downMY-(event.clientY-rect.top));
+            if(elem7_6.locX<972-elem7_6.width){
+                elem7_6.locX=972-elem7_6.width;
+            }else if(elem7_6.locX>0){
+                elem7_6.locX=0;
+            }
+            if(elem7_6.locY<640-elem7_6.length){
+                elem7_6.locY=640-elem7_6.length;
+            }else if(elem7_6.locY>0){
+                elem7_6.locY=0;
+            }
+            
+        }
+        
+    });
+    soup.addEventListener("mouseup",function(event){
+        
+        mouseDown=false;
+        
+    });
+    soup.addEventListener("touchend",function(event){
+        
+        mouseDown=false;
+        
+    });
+    soup.addEventListener("mouseout",function(event){ 
+        
+       mouseDown=false;
+        
+    });
+    
+        
+    function clearC(){
+        ctx.clearRect(0, 0, currentScreen[0].width, currentScreen[0].height);
+    }
+        var currentWallS = 0;
+        var patern=[30,29,28,27,26,25,24,22,22,22,9,8,7,6,5,4,3,2,1,2,3,4,5,4,3,2,1,2,3,4,5,6,7,8,9,10,20,20,20,20,20,20,20,20,20,20,10,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20];
+    function nextWallspeed(){
+        
+        
+        if(currentWallS<patern.length-1){
+            
+            return patern[currentWallS++];
+        }else{
+            transit=false;
+            return 0;
+        }
+        
+    }
+    function startTransit(img){
+        transit=true;
+        currentWallS=0;
+        wall.image.src=img;
+        wall.locX=300;
+    }
+        var wallspd=30;
+        var increasespd=-1;
+        
+    setInterval(function(){
+        clearC();
+        
+        if(!transit){
+            wall.locX-=wallspd;
+        }else{
+            wall.locX-=nextWallspeed();
+        }
+        //wallspd+=increasespd;
+        
+        
+        //ctx.drawImage(imoige, 300, 100);
+        
+        for(i = 0; i<currentScreen.length;i++){
+            if(currentScreen[i].name!="c1"){
+                currentScreen[i].update(ctx);
+            }else{
+                ctx.globalAlpha="0.5";
+                currentScreen[i].update(ctx);
+                ctx.globalAlpha="1";
+            }
+        }
+        document.getElementById("demo").innerHTML = "sp"+elem1_1.locX+elem1_1.checkClicked(1,1)+mouseDown;
+        
+        
+        wall.update(ctx);
+    },20);
+   
+    function checkWhatClicked(event){
+        document.getElementById("demo").innerHTML = event.clientX;
+        if(wall.locX<-987||wall.locX>1000){
+        for(i = 0; i<currentScreen.length;i++){
+            if(currentScreen[i].checkClicked(event.clientX-rect.left,event.clientY-rect.top)){
+            
+                if(currentScreen[i].name.substring(0,2)=="s1"){
+               
+                    switchScreen(1);
+                    startTransit("img/street.jpg");
+                    
+                    return;
+                }else if(currentScreen[i].name=="s2"){
+                
+                    switchScreen(0);
+                    transition("img/gaypuddle.png")
+                    
+                    return;
+                }else if(currentScreen[i].name=="s3"){
+                    if(textLeft==0){
+                        transition("img/redGrid.png");
+                        switchScreen(2);
+                        
+                    }else{
+                       
+                        var txtOne = theMainText.nextText();
+                        
+                        var charas = txtOne[2];
+                        var charasLoc = txtOne[5];
+                        
+                        var item1 =getCharaImage(charas[0]);
+                        elem2_3.image.src=item1[0];
+                        elem2_3.length=item1[1];
+                        elem2_3.width=item1[2];
+                        elem2_3.locY=item1[3];
+                        elem2_3.locX=charasLoc[0];
+                        
+                        item1 =getCharaImage(charas[1]);
+                        elem2_4.image.src=item1[0];
+                        elem2_4.length=item1[1];
+                        elem2_4.width=item1[2];
+                        elem2_4.locY=item1[3];
+                        elem2_4.locX=charasLoc[1];
+                        
+                        item1 =getCharaImage(charas[2]);
+                        elem2_7.image.src=item1[0];
+                        elem2_7.length=item1[1];
+                        elem2_7.width=item1[2];
+                        elem2_7.locY=item1[3];
+                        elem2_7.locX=charasLoc[2];
+                        
+                        item1 =getCharaImage(charas[3]);
+                        elem2_8.image.src=item1[0];
+                        elem2_8.length=item1[1];
+                        elem2_8.width=item1[2];
+                        elem2_8.locY=item1[3];
+                        elem2_8.locX=charasLoc[3];
+                        
+                        
+                        
+                        
+                        
+                        if(txtOne[1]>=0){
+                        switch(txtOne[1]){
+                            case 0:elem2_2.image.src="img/Map2.png";
+                                break;
+                            case 1:elem2_2.image.src="img/Map1.png";
+                                break;
+                        }}else if(txtOne[1]==-1){
+                           
+                            transition("img/ButtonPurple.jpg");
+                            txtOne = theMainText.nextText();
+                           
+                        }
+                        
+                        if(txtOne[0]>0){
+                            textLeft+=txtOne[0];
+                            transition("img/fancy.png");
+                            switchScreen(2);
+                            
+                            
+                        }else if(txtOne[0]==-1){
+                            transition("img/ButtonPurple.jpg");
+                            switchScreen(6);
+                        }else if(txtOne[0]==-2){
+                            
+                        }else if(txtOne[0]==-3){
+                            
+                        }
+                        text2_1.text=txtOne[3];
+                        text2_2.text=txtOne[4];
+                        textLeft--;
+                    }
+                    
+                    return;
+                }else if(currentScreen[i].name=="s3a"){
+                
+                    switchScreen(2);
+                   
+                    
+                    return;
+                }else if(currentScreen[i].name=="s4"){
+                
+                    switchScreen(3);
+                    
+                    
+                    return;
+                }else if(currentScreen[i].name=="s5"){
+                
+                    switchScreen(4);
+                    
+                    
+                    return;
+                }else if(currentScreen[i].name=="s6"){
+                
+                    switchScreen(5);
+                    
+                    
+                    return;
+                }else if(currentScreen[i].name=="s7"){
+                    transition("img/fancy.png");
+                    switchScreen(1);
+                    
+                    
+                    return;
+                    
+                }
+                else if(currentScreen[i].name=="e1"){
+                    
+            
+                    game7_1.clickThis(event.clientX-rect.left,event.clientY-rect.top);
+        
+                    
+                    
+                   
+                    return;
+                }else if(currentScreen[i].name=="e0"){
+                    
+                    
+                    
+                    return;
+                }else if(currentScreen[i].name=="save1"){
+                
+                    localStorage.setItem("hp", 20);
+                    
+                    
+                    return;
+                }else if(currentScreen[i].name=="save2"){
+                
+                    localStorage.setItem("mp", 10);
+                    
+                    
+                    return;
+                }
+                else if(currentScreen[i].name=="lulu"){
+                
+                    statText1.text="Hp: "+charactersList[0].hp;
+                    statText2.text="Mp: "+charactersList[0].mp;
+                    statText3.text="Def: "+charactersList[0].def;
+                    statText4.text="Res: "+charactersList[0].res;
+                    statText5.text="Speed: "+charactersList[0].speed;
+                    statText6.text="Initiation: "+charactersList[0].initiation;
+                    statText7.text="MpRegen: "+charactersList[0].mpRegen;
+                    statText8.text="Attack: "+charactersList[0].attack;
+                    statText9.text="Vigilance: "+charactersList[0].vigilance;
+                    statText10.text="Fatal Shock: "+charactersList[0].fatalShock;
+                    
+                    
+                    
+                    return;
+                }
+                else if(currentScreen[i].name=="eric"){
+                
+                    statText1.text="Hp: "+charactersList[1].hp;
+                    statText2.text="Mp: "+charactersList[1].mp;
+                    statText3.text="Def: "+charactersList[1].def;
+                    statText4.text="Res: "+charactersList[1].res;
+                    statText5.text="Speed: "+charactersList[1].speed;
+                    statText6.text="Initiation: "+charactersList[1].initiation;
+                    statText7.text="MpRegen: "+charactersList[1].mpRegen;
+                    statText8.text="Attack: "+charactersList[1].attack;
+                    statText9.text="Vigilance: "+charactersList[1].vigilance;
+                    statText10.text="Fatal Shock: "+charactersList[1].fatalShock;
+                    
+                    
+                    return;
+                }
+                else if(currentScreen[i].name=="mina"){
+                
+                    
+                    statText1.text="Hp: "+charactersList[2].hp;
+                    statText2.text="Mp: "+charactersList[2].mp;
+                    statText3.text="Def: "+charactersList[2].def;
+                    statText4.text="Res: "+charactersList[2].res;
+                    statText5.text="Speed: "+charactersList[2].speed;
+                    statText6.text="Initiation: "+charactersList[2].initiation;
+                    statText7.text="MpRegen: "+charactersList[2].mpRegen;
+                    statText8.text="Attack: "+charactersList[2].attack;
+                    statText9.text="Vigilance: "+charactersList[2].vigilance;
+                    statText10.text="Fatal Shock: "+charactersList[2].fatalShock;
+                    
+                    return;
+                }
+        }
+        }
+        }
+        
+    }
+        function transition(file){
+            wall.image.src=file;
+            wall.locX=0;
+        }
+        
+    function resize(){
+        rect = document.getElementById("myCanvas").getBoundingClientRect();
+
+    }
+    function loaded(){
+        if(loading>1){
+            text1_1.text="Loaded";
+            
+        }
+            loading+=1;
+        
+    }
+        var currentSPD=10;
+    
+    function startTransition(img){
+        transit=true;
+        elem2_6.image.src=img;  
+        elem2_6.locX=2000;
+    }
+    function getCharaImage(num){
+        switch(num){
+            //height,width,y
+            case 1: return ["img/RenaRight.png",400,250,200];
+            case -1: return ["img/RenaLeft.png",400,250,200];
+            case 2: return ["img/RoseLeft.png",400,200,200];
+            case -2: return ["img/RoseRight.png",400,200,200];
+            case 3: return ["img/AishaLeft.png",350,175,200];
+            case -3: return ["img/AishaRight.png",350,175,200];
+            case 4: return ["img/LabyLeft.png",400,250,200];
+            case -4: return ["img/LabyRight.png",400,250,200];
+            case 5: return ["img/LuCenter.png",400,200,200];
+        }
+        
+        return ["img/blank.png",200,300,100];
+    }
+    function switchScreen(nextScreen){
+        var music = document.getElementById("sound2");
+        switch(nextScreen){
+            case 0:currentScreen=screen1;
+                music.src="music/Heal1.ogg";
+                switchMusic(0);
+                break;
+            case 1:currentScreen=screen2;
+                music.src="music/Heal2.ogg";
+                switchMusic(1);
+                break;
+            case 2:currentScreen=screen3;
+                music.src="music/Heal3.ogg";
+                switchMusic(2);
+                break;
+            case 3:currentScreen=screen4;
+                music.src="music/Heal4.ogg";
+                switchMusic(2);
+                break;
+            case 4:currentScreen=screen5;
+                music.src="music/Heal5.ogg";
+                switchMusic(2);
+                break;
+            case 5:currentScreen=screen6;
+                music.src="music/Heal6.ogg";
+                switchMusic(2);
+                break;
+            case 6:currentScreen=screen7;
+                music.src="music/Heal7.ogg";
+                switchMusic(2);
+                break;
+        }
+    }
+    function playSoundEffect(number){
+        if(EFsound==0){
+            switch(numer){
+                    
+                    
+                    
+                    
+            }
+            
+        }
+    }
+    function switchMusic(number){
+        var music = document.getElementById("sound1");
+        
+        
+        var musicSource = document.getElementById("soundSource1");
+        switch(number){
+            case 0:music.src="music/Emotions.mp3";
+                
+                break;
+            case 1:music.src="music/01.mp3";
+                
+                break;
+            case 2:music.src="music/02.mp3";
+                
+                break;
+               
+               
+        }
+        
+        
+    }
+        
+    </script>>
+
+
+</body>
+</html>
